@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 const GOALS = [
@@ -34,6 +34,17 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('stack');
   const [isPro] = useState(() => typeof window !== 'undefined' && localStorage.getItem(PRO_UNLOCK_KEY) === 'true');
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('pro') === '1' && !localStorage.getItem(PRO_UNLOCK_KEY)) {
+      const savedProfile = sessionStorage.getItem('stackmax_profile');
+      const savedGoals = sessionStorage.getItem('stackmax_goals');
+      if (savedProfile) setProfile(JSON.parse(savedProfile));
+      if (savedGoals) setGoals(JSON.parse(savedGoals));
+      localStorage.setItem(PRO_UNLOCK_KEY, 'true');
+    }
+  }, []);
+
   const toggleGoal = (id) => {
     setGoals(g => g.includes(id) ? g.filter(x => x !== id) : [...g, id]);
   };
@@ -64,12 +75,23 @@ export default function Home() {
   };
 
   const handleUnlock = () => {
-    // In production, redirect to Gumroad / Stripe
-    // For now simulate unlock
+    // Save profile to sessionStorage so we can restore after payment
     if (typeof window !== 'undefined') {
-      localStorage.setItem(PRO_UNLOCK_KEY, 'true');
+      sessionStorage.setItem('stackmax_profile', JSON.stringify(profile));
+      sessionStorage.setItem('stackmax_goals', JSON.stringify(goals));
+      window.location.href = 'https://maxnolla.gumroad.com/l/bpywhf?wanted=true&redirect=' + encodeURIComponent(window.location.href + '?pro=1');
     }
-    generateStack(true);
+  };
+
+  const handleProReturn = () => {
+    if (typeof window !== 'undefined') {
+      const savedProfile = sessionStorage.getItem('stackmax_profile');
+      const savedGoals = sessionStorage.getItem('stackmax_goals');
+      if (savedProfile) setProfile(JSON.parse(savedProfile));
+      if (savedGoals) setGoals(JSON.parse(savedGoals));
+      localStorage.setItem(PRO_UNLOCK_KEY, 'true');
+      generateStack(true);
+    }
   };
 
   const priorityColor = (p) => {
