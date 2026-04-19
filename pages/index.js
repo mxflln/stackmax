@@ -75,23 +75,9 @@ export default function Home() {
   };
 
   const handleUnlock = () => {
-    // Save profile to sessionStorage so we can restore after payment
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('stackmax_profile', JSON.stringify(profile));
-      sessionStorage.setItem('stackmax_goals', JSON.stringify(goals));
-      window.location.href = 'https://maxnolla.gumroad.com/l/bpywhf?wanted=true&redirect=' + encodeURIComponent(window.location.href + '?pro=1');
-    }
-  };
-
-  const handleProReturn = () => {
-    if (typeof window !== 'undefined') {
-      const savedProfile = sessionStorage.getItem('stackmax_profile');
-      const savedGoals = sessionStorage.getItem('stackmax_goals');
-      if (savedProfile) setProfile(JSON.parse(savedProfile));
-      if (savedGoals) setGoals(JSON.parse(savedGoals));
-      localStorage.setItem(PRO_UNLOCK_KEY, 'true');
-      generateStack(true);
-    }
+    sessionStorage.setItem('stackmax_profile', JSON.stringify(profile));
+    sessionStorage.setItem('stackmax_goals', JSON.stringify(goals));
+    window.location.href = 'https://maxnolla.gumroad.com/l/bpywhf';
   };
 
   const priorityColor = (p) => {
